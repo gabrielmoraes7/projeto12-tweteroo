@@ -1,9 +1,12 @@
 import express, { json } from "express";
 import cors from "cors";
+
 //Criação da base da API utilizando o Express
 const app = express();
+
 app.use(cors());
 app.use(json());
+
 //Variaveis globais referentes as principais aplicações das rotas
 const users = [];
 const tweets = [];
@@ -13,20 +16,20 @@ const tweets = [];
 //POST: /sign-up 
   app.post("/sign-up", (req, res) => {
     const { username, avatar } = req.body;
-    users.push
-    (
+    users.push(
       { 
         username,
          avatar
       }
     );
-
     res.send("OK"); 
   }
   );
 
-   // POST /tweets
-   app.post("/tweets", (req, res) => {
+
+  // POST /tweets
+  //Rota com a finalidade de postar os Tweets do usuario
+  app.post("/tweets", (req, res) => {
 
     //Corpo do tweet
     const { username, tweet } = req.body;
@@ -36,12 +39,23 @@ const tweets = [];
 
     //Caso ele não esteja na matriz dos usuarios é colocado como um acesso não autorizado(UNAUTHORIZED)
     if (!userExists) return res.send("UNAUTHORIZED");
-
+    
     //Posta o tweet
     tweets.push({ username, tweet });
     res.send("OK");
 });
+  
+//GET: /tweets
 
+app.get("/tweets", (req, res) => {
+
+  const completeTweets = tweets.map((tweet) => {
+      const user = users.find((user) => user.username === tweet.username);
+      return { ...tweet, avatar: user.avatar }
+  })
+
+  res.send(completeTweets.slice(-10).reverse());
+});
 
 //Conexão ao servidor na porta 5000
 const PORT = 5000;
